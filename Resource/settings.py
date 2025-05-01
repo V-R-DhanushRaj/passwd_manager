@@ -1,0 +1,1 @@
+appearance_mode = 'light'  # system, dark, light modes are available
