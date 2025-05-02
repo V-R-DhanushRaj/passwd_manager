@@ -9,16 +9,16 @@ class GUI(ctk.CTk):
         ctk.set_appearance_mode(self.APP_MODE)
 
         # Images
-        self.dashboard_img = ctk.CTkImage(light_image=Image.open("../Images/dashboard_light.png"),
-                                          dark_image=Image.open('../Images/dashboard_light.png'), size=(30, 30))
-        self.my_passwd_img = ctk.CTkImage(light_image=Image.open('../Images/analytics_light.png'),
-                                          dark_image=Image.open('../Images/analytics_light.png'), size=(30, 30))
-        self.settings_img = ctk.CTkImage(light_image=Image.open('../Images/settings_light.png'),
-                                          dark_image=Image.open('../Images/settings_light.png'), size=(30, 30))
-        self.search_img = ctk.CTkImage(light_image=Image.open('../Images/search.png'),
-                                          dark_image=Image.open('../Images/search.png'), size=(30, 30))
-        self.add_img = ctk.CTkImage(light_image=Image.open('../Images/add_light.png'),
-                                          dark_image=Image.open('../Images/add_light.png'), size=(25, 25))
+        self.dashboard_img = ctk.CTkImage(light_image=Image.open("./Images/dashboard_light.png"),
+                                          dark_image=Image.open('./Images/dashboard_light.png'), size=(30, 30))
+        self.my_passwd_img = ctk.CTkImage(light_image=Image.open('./Images/analytics_light.png'),
+                                          dark_image=Image.open('./Images/analytics_light.png'), size=(30, 30))
+        self.settings_img = ctk.CTkImage(light_image=Image.open('./Images/settings_light.png'),
+                                          dark_image=Image.open('./Images/settings_light.png'), size=(30, 30))
+        self.search_img = ctk.CTkImage(light_image=Image.open('./Images/search.png'),
+                                          dark_image=Image.open('./Images/search.png'), size=(30, 30))
+        self.add_img = ctk.CTkImage(light_image=Image.open('./Images/add_light.png'),
+                                          dark_image=Image.open('./Images/add_light.png'), size=(25, 25))
 
         # Variables
         self.OPTION = 'dashboard'
@@ -29,7 +29,7 @@ class GUI(ctk.CTk):
         self.title('Passwd Manager')
         self.geometry('1280x720')
         self.config(bg=self.BG_COLOUR)
-        self.iconbitmap('../Images/logo.ico')
+        self.iconbitmap('./Images/logo.ico')
         self.resizable(False, False)
 
         # Drawing Canvas
@@ -37,10 +37,19 @@ class GUI(ctk.CTk):
         self.canvas.create_line(335,0, 335,900, fill=self.HIGHLIGHT_COLOUR_1, width=3)
         self.canvas.pack(expand=True, fill='both')
 
+        # Interface Design
         self.create_sidebar()
         self.create_search_add()
         self.create_dashboard()
         self.create_my_password()
+
+        # Events
+        #TODO: clicking dashboard button
+        #TODO: clicking my passwd button
+        #TODO: clicking settings button
+        #TODO: clicking add button
+        #TODO: clicking search button
+
 
 
     def create_sidebar(self):
@@ -116,12 +125,9 @@ class GUI(ctk.CTk):
             self.FONT_COLOUR_1 = '#000000'
             self.FONT_COLOUR_2 = '#ffffff'
         elif self.APP_MODE == 'dark':
-            self.BG_COLOUR = 'ffffff'  # change later for all
+            self.BG_COLOUR = 'ffffff'  # TODO: change later for all
             self.HIGHLIGHT_COLOUR_1 = 'eeeeef'
             self.HIGHLIGHT_COLOUR_2 = 'cecece'
             self.BUTTON_COLOUR_1 = '000000'
             self.FONT_COLOUR_1 = '000000'
             self.FONT_COLOUR_2 = 'ffffff'
-
-gui = GUI()
-gui.mainloop()
