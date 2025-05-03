@@ -44,12 +44,43 @@ class GUI(ctk.CTk):
         self.create_my_password()
 
         # Events
-        #TODO: clicking dashboard button
-        #TODO: clicking my passwd button
-        #TODO: clicking settings button
-        #TODO: clicking add button
-        #TODO: clicking search button
+        self.dashboard.bind('<Button-1>', self.on_dashboard_click)
+        for widget in self.dashboard.winfo_children():
+            widget.bind("<Button-1>", self.on_dashboard_click)
 
+        self.my_passwd.bind('<Button-1>', self.on_my_passwd_click)
+        for widget in self.my_passwd.winfo_children():
+            widget.bind("<Button-1>", self.on_my_passwd_click)
+
+        self.settings.bind('<Button-1>', self.on_settings_click)
+        for widget in self.settings.winfo_children():
+            widget.bind("<Button-1>", self.on_settings_click)
+
+        self.add.bind('<Button-1>', self.on_add_click)
+        for widget in self.add.winfo_children():
+            widget.bind("<Button-1>", self.on_add_click)
+
+        self.search_icon.bind('<Button-1>', self.on_search_click)
+
+
+    def on_dashboard_click(self, event):
+        print('Dashboard')
+
+
+    def on_my_passwd_click(self, event):
+        print('My Passwd')
+
+
+    def on_settings_click(self, event):
+        print('Settings')
+
+
+    def on_add_click(self, event):
+        print('Add Passwd')
+
+
+    def on_search_click(self, event):
+        print('Search')
 
 
     def create_sidebar(self):
