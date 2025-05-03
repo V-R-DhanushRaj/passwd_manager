@@ -23,6 +23,9 @@ class GUI(ctk.CTk):
         # Variables
         self.OPTION = 'dashboard'
         self.SEARCH = ctk.StringVar(value='Search Password')
+        self.PASSWORDS = ctk.IntVar(value=settings.passwords)
+        self.MAIL_ID = ctk.IntVar(value=settings.mail_id)
+        self.SITES_SECURED = ctk.IntVar(value=settings.sites_secured)
         self.colour_choose()
 
         # Window Settings
@@ -40,8 +43,8 @@ class GUI(ctk.CTk):
         # Interface Design
         self.create_sidebar()
         self.create_search_add()
-        self.create_dashboard()
-        self.create_my_password()
+        self.create_dashboard()  # Does not display
+        self.create_my_password()  # Does not display
 
         # Events
         self.dashboard.bind('<Button-1>', self.on_dashboard_click)
@@ -62,13 +65,31 @@ class GUI(ctk.CTk):
 
         self.search_icon.bind('<Button-1>', self.on_search_click)
 
+        # Desplaying Tab
+        self.choose_tab()
+
+
+    def choose_tab(self):
+        if self.OPTION == 'dashboard':
+            self.dashboard_frame.place(x=300, y=85)
+            self.my_passwd_frame.place_forget()
+        elif self.OPTION == 'my_password':
+            self.my_passwd_frame.place(x=300, y=85)
+            self.dashboard_frame.place_forget()
+
 
     def on_dashboard_click(self, event):
-        print('Dashboard')
+        self.OPTION = 'dashboard'
+        self.dashboard.configure(fg_color=self.HIGHLIGHT_COLOUR_1)
+        self.my_passwd.configure(fg_color=self.BG_COLOUR)
+        self.choose_tab()
 
 
     def on_my_passwd_click(self, event):
-        print('My Passwd')
+        self.OPTION = 'my_password'
+        self.dashboard.configure(fg_color=self.BG_COLOUR)
+        self.my_passwd.configure(fg_color=self.HIGHLIGHT_COLOUR_1)
+        self.choose_tab()
 
 
     def on_settings_click(self, event):
@@ -140,11 +161,68 @@ class GUI(ctk.CTk):
 
 
     def create_dashboard(self):
-        pass
+        self.dashboard_frame = ctk.CTkFrame(master=self, width=950, height=620,
+                                            bg_color=self.BG_COLOUR, fg_color=self.BG_COLOUR)
+        self.dashboard_title = ctk.CTkLabel(master=self.dashboard_frame, text='My Dashboard', font=('Inter', 34, 'bold'))
+        self.dashboard_title.place(x=2, y=8)
+
+        # Passwords
+        self.dashboard_frame_1_shadow = ctk.CTkFrame(master=self.dashboard_frame, width=300, height=77,
+                                                     bg_color=self.BG_COLOUR, fg_color=self.HIGHLIGHT_COLOUR_1)
+        self.dashboard_frame_1_shadow.place(x=5, y=80)
+        self.dashboard_frame_1 = ctk.CTkFrame(master=self.dashboard_frame, width=300, height=77,
+                                                     bg_color='transparent', fg_color=self.HIGHLIGHT_COLOUR_2)
+        self.dashboard_frame_1.place(x=10, y=75)
+        self.dash_pass = ctk.CTkLabel(master=self.dashboard_frame_1, text='Password',
+                                      font=('Konkhmer Sleokchher', 16, 'bold'))
+        self.dash_pass.place(x= 150, y=25, anchor='center')
+        self.pass_value = ctk.CTkLabel(master=self.dashboard_frame_1, textvariable = self.PASSWORDS, text='',
+                                      font=('Konkhmer Sleokchher', 16, 'bold'))
+        self.pass_value.place(x = 150, y=50, anchor='center')
+
+        # Mail ID
+        self.dashboard_frame_2_shadow = ctk.CTkFrame(master=self.dashboard_frame, width=300, height=77,
+                                                     bg_color=self.BG_COLOUR, fg_color=self.HIGHLIGHT_COLOUR_1)
+        self.dashboard_frame_2_shadow.place(x=320, y=80)
+        self.dashboard_frame_2 = ctk.CTkFrame(master=self.dashboard_frame, width=300, height=77,
+                                              bg_color='transparent', fg_color=self.HIGHLIGHT_COLOUR_2)
+        self.dashboard_frame_2.place(x=325, y=75)
+        self.dash_mail = ctk.CTkLabel(master=self.dashboard_frame_2, text='Mail ID',
+                                      font=('Konkhmer Sleokchher', 16, 'bold'))
+        self.dash_mail.place(x=150, y=25, anchor='center')
+        self.mail_value = ctk.CTkLabel(master=self.dashboard_frame_2, textvariable=self.MAIL_ID, text='',
+                                       font=('Konkhmer Sleokchher', 16, 'bold'))
+        self.mail_value.place(x=150, y=50, anchor='center')
+
+        # Sites Secured
+        self.dashboard_frame_3_shadow = ctk.CTkFrame(master=self.dashboard_frame, width=300, height=77,
+                                                     bg_color=self.BG_COLOUR, fg_color=self.HIGHLIGHT_COLOUR_1)
+        self.dashboard_frame_3_shadow.place(x=635, y=80)
+        self.dashboard_frame_3 = ctk.CTkFrame(master=self.dashboard_frame, width=300, height=77,
+                                              bg_color='transparent', fg_color=self.HIGHLIGHT_COLOUR_2)
+        self.dashboard_frame_3.place(x=640, y=75)
+        self.dash_site = ctk.CTkLabel(master=self.dashboard_frame_3, text='Sites Secured',
+                                      font=('Konkhmer Sleokchher', 16, 'bold'))
+        self.dash_site.place(x=150, y=25, anchor='center')
+        self.site_value = ctk.CTkLabel(master=self.dashboard_frame_3, textvariable=self.SITES_SECURED, text='',
+                                       font=('Konkhmer Sleokchher', 16, 'bold'))
+        self.site_value.place(x=150, y=50, anchor='center')
+
+        # Graph
+        self.dashboard_graph_frame = ctk.CTkFrame(master=self.dashboard_frame, width=938, height=425,
+                                                     bg_color=self.BG_COLOUR, fg_color=self.HIGHLIGHT_COLOUR_1)
+        self.dashboard_graph_frame.place(x=5, y=168)
 
 
     def create_my_password(self):
-        pass
+        self.my_passwd_frame = ctk.CTkFrame(master=self, width=950, height=620,
+                                            bg_color=self.BG_COLOUR, fg_color=self.BG_COLOUR)
+        self.my_passwd_title = ctk.CTkLabel(master=self.my_passwd_frame, text='My Passwords',
+                                            font=('Inter', 34, 'bold'))
+        self.my_passwd_title.place(x=2, y=8)
+        self.my_passwd_table_frame = ctk.CTkFrame(master=self.my_passwd_frame, width=938, height=518,
+                                                  bg_color=self.BG_COLOUR, fg_color=self.HIGHLIGHT_COLOUR_1)
+        self.my_passwd_table_frame.place(x=5, y=75)
 
 
     def colour_choose(self):
