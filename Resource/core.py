@@ -16,18 +16,23 @@ def gen_primary_key():
     with open(KEY_PATH, 'wb') as key_file:
         key_file.write(key)
 
-def gen_secondary_key(passwd):
+def gen_secondary_key(username, passwd, another_user=False):
     with open(KEY_PATH, 'rb') as key_file:
         key = key_file.read()
     key_var = Fernet(key)
-    enc_key = key_var.encrypt(passwd.encode())
-    # Write
-    with open('../.env', 'w') as file:
-        file.write(f"PASSWD_MANAGER_KEY={enc_key.decode()}")
+    main_key = key_var.encrypt(passwd.encode())
+    print(Fernet.generate_key(),'\n', main_key)
+    key_check = Fernet('password'.encode())
+    if another_user:
+        mode = 'a'
+    else:
+        mode = 'w'
+    with open('../.env', mode) as file:
+        file.write(f"PASSWD_MANAGER_KEY_{username}={key_var.encrypt(main_key)}")
 
     # Load
 
 def save_passwd(website, email, passwd, note=''):
     pass
 
-gen_secondary_key('Password')
+gen_secondary_key('Root','Password', True)
