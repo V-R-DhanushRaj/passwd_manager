@@ -35,4 +35,3 @@ def gen_secondary_key(username, passwd, another_user=False):
 def save_passwd(website, email, passwd, note=''):
     pass
 
-gen_secondary_key('Root','Password', True)
