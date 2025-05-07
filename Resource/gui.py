@@ -1,11 +1,15 @@
 import customtkinter as ctk
 from PIL import Image
-import settings
+import settings, core
+import json
 
 class GUI(ctk.CTk):
     def __init__(self):
+        with open('./Resource/setting.json') as settings_file:
+            data = json.load(settings_file)
+
         super().__init__()
-        self.APP_MODE = settings.appearance_mode
+        self.APP_MODE = data["appearance_mode"]
         ctk.set_appearance_mode(self.APP_MODE)
 
         # Images
@@ -19,13 +23,15 @@ class GUI(ctk.CTk):
                                           dark_image=Image.open('./Images/search.png'), size=(30, 30))
         self.add_img = ctk.CTkImage(light_image=Image.open('./Images/add_light.png'),
                                           dark_image=Image.open('./Images/add_light.png'), size=(25, 25))
+        self.welcome_img = ctk.CTkImage(light_image=Image.open('./Images/sign_up.png'),
+                                          dark_image=Image.open('./Images/sign_up.png'), size=(620, 680))
 
         # Variables
-        self.OPTION = 'dashboard'
+        self.OPTION = data["page"]
         self.SEARCH = ctk.StringVar(value='Search Password')
-        self.PASSWORDS = ctk.IntVar(value=settings.passwords)
-        self.MAIL_ID = ctk.IntVar(value=settings.mail_id)
-        self.SITES_SECURED = ctk.IntVar(value=settings.sites_secured)
+        self.PASSWORDS = ctk.IntVar(value=data["passwords"])
+        self.MAIL_ID = ctk.IntVar(value=data["mail_id"])
+        self.SITES_SECURED = ctk.IntVar(value=data["sites_secured"])
         self.colour_choose()
 
         # Window Settings
@@ -37,16 +43,15 @@ class GUI(ctk.CTk):
 
         # Drawing Canvas
         self.canvas = ctk.CTkCanvas(master=self, width=1280, height=720, bg=self.BG_COLOUR)
-        self.canvas.create_line(335,0, 335,900, fill=self.HIGHLIGHT_COLOUR_1, width=3)
-        self.canvas.pack(expand=True, fill='both')
 
         # Interface Design
-        self.create_sidebar()
-        self.create_search_add()
+        if self.OPTION == 'sign_up':
+            self.create_sign_up()
         self.create_dashboard()  # Does not display
         self.create_my_password()  # Does not display
 
         # Events
+        """
         self.dashboard.bind('<Button-1>', self.on_dashboard_click)
         for widget in self.dashboard.winfo_children():
             widget.bind("<Button-1>", self.on_dashboard_click)
@@ -63,16 +68,25 @@ class GUI(ctk.CTk):
         for widget in self.add.winfo_children():
             widget.bind("<Button-1>", self.on_add_click)
 
-        self.search_icon.bind('<Button-1>', self.on_search_click)
+        self.search_icon.bind('<Button-1>', self.on_search_click)"""
 
         # Desplaying Tab
         self.choose_tab()
 
 
     def choose_tab(self):
-        if self.OPTION == 'dashboard':
+        if self.OPTION == 'sign_up':
+            self.sign_up.place(x=20, y=20)
+        elif self.OPTION == 'log_in':
+            pass
+        elif self.OPTION == 'dashboard':
+            self.create_sidebar()
+            self.create_search_add()
+
             self.dashboard_frame.place(x=300, y=85)
             self.my_passwd_frame.place_forget()
+            self.sign_up.place_forget()
+
         elif self.OPTION == 'my_password':
             self.my_passwd_frame.place(x=300, y=85)
             self.dashboard_frame.place_forget()
@@ -103,6 +117,45 @@ class GUI(ctk.CTk):
     def on_search_click(self, event):
         print('Search')
 
+    def new_user(self, username, passwd):
+        # Changing setting.json
+        file = open('./Resource/setting.json', 'r')
+        data = json.load(file)
+        file.close()
+        data["page"] = "log_in"
+        data["users"] = [username]
+        file = open('./Resource/setting.json', 'w')
+        json.dump(data, file)
+        file.close()
+
+        core.gen_secondary_key(username, passwd)
+        core.create_file(username)
+        self.OPTION = 'dashboard'
+        self.choose_tab()
+
+    def create_sign_up(self):
+        core.gen_primary_key()
+        user_name = ctk.StringVar()
+        passwd = ctk.StringVar()
+
+        self.sign_up = ctk.CTkFrame(master=self, bg_color=self.BG_COLOUR, fg_color='#adbc1d', width=1240, height=680, corner_radius=20)
+        welcome_icon = ctk.CTkLabel(master=self.sign_up, text='', image=self.welcome_img)
+        welcome_icon.place(x=0, y=0)
+        sign_up_text = ctk.CTkLabel(master=self.sign_up, text='Sign Up', text_color=self.BG_COLOUR, font=('Inter', 50, 'bold'))
+        sign_up_text.place(x=850, y=120)
+        username_text = ctk.CTkLabel(master=self.sign_up, text='Username: ', font=('Inter', 25, 'normal'))
+        username_text.place(x=720, y=300)
+        username_entry = ctk.CTkEntry(master=self.sign_up, textvariable=user_name, border_width=0, width=300)
+        username_entry.place(x=850, y=302)
+        passwd_text = ctk.CTkLabel(master=self.sign_up, text='Password: ', font=('Inter', 25, 'normal'))
+        passwd_text.place(x=720, y=350)
+        passwd_entry = ctk.CTkEntry(master=self.sign_up, textvariable=passwd, border_width=0, width=300)
+        passwd_entry.place(x=850, y=352)
+        sign_up_button = ctk.CTkButton(master=self.sign_up, text='SIGN UP', width=432, command=lambda: self.new_user(user_name.get(), passwd.get()))
+        sign_up_button.place(x=720, y=400)
+
+    def create_log_in(self):
+        pass
 
     def create_sidebar(self):
         # Side Bar Title
@@ -137,6 +190,10 @@ class GUI(ctk.CTk):
                                           font=('Inter', 16, 'bold'), bg_color=self.BG_COLOUR)
         self.settings_text.place(x=50, y=6)
         self.settings.place(x=17, y=650)
+
+        # Drawing line
+        self.canvas.create_line(335, 0, 335, 900, fill=self.HIGHLIGHT_COLOUR_1, width=3)
+        self.canvas.pack(expand=True, fill='both')
 
 
     def create_search_add(self):
