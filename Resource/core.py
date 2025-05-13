@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 KEY_PATH = "./Resource/keys/encrypt.key"
 
 def generate_password():
-    length = randint(15, 20)
+    length = randint(19, 23)
     chars = string.ascii_letters + string.digits + string.punctuation
     password = ''.join(choice(chars) for _ in range(length))
     pyperclip.copy(password)
@@ -61,7 +61,6 @@ def encrypt_data(username):
 
 def decrypt_data(username):
     f_key = Fernet(get_key(username))
-    print(f_key)
     with open(f'../Data/{username}.csv', 'r') as data_file:
         data = data_file.read()
     dec_data = f_key.decrypt(token=data.encode()).decode()
@@ -70,7 +69,10 @@ def decrypt_data(username):
 
 
 
-def save_passwd(username, website, email, passwd, note=''):
-    pass
-
+def save_passwd(username, website, email, passwd, note):
+    decrypt_data(username)
+    with open(f'./Data/{username}.csv', 'a') as data_file:
+        writer = csv.writer(data_file)
+        writer.writerow([website, email, passwd, note])
+    encrypt_data(username)
 

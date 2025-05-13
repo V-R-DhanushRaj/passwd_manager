@@ -78,6 +78,7 @@ class GUI(ctk.CTk):
         self.search_icon.bind('<Button-1>', self.on_search_click)
 
         # Displaying Tab
+        self.OPTION = 'dashboard'
         self.choose_tab()
 
 
@@ -128,11 +129,65 @@ class GUI(ctk.CTk):
 
 
     def on_add_click(self, event):
-        print('Add Passwd')
+        self.add_passwd_popup()
 
 
     def on_search_click(self, event):
         print('Search')
+
+
+    def add_passwd(self, web, id, passwd, note_textbox):
+        if web.get() == '' or id.get() == '' or passwd.get() == '':
+            tkinter.messagebox.showerror('Empty Input', "Don't leave any input empty!")
+        else:
+            self.add_popup.destroy()
+            print(note_textbox.get('1.0', 'end'))
+            #core.save_passwd(self.USERNAME, web.get(), id.get(), passwd.get(), note_textbox.g)
+
+
+
+    def add_passwd_popup(self):
+        self.add_popup = ctk.CTkToplevel(self)
+        self.add_popup.geometry('430x620')
+        self.add_popup.title('Adding password...')
+        self.add_popup.iconbitmap('./Images/logo.ico')
+        self.add_popup.configure(fg_color='#444444')
+        self.add_popup.resizable(False, False)
+
+        website_name = ctk.StringVar()
+        emailid = ctk.StringVar()
+        passwd = ctk.StringVar()
+
+        title = ctk.CTkLabel(master=self.add_popup, text='Add Password!', font=('normal', 30, 'bold'), corner_radius=45, fg_color='#808080', text_color='white', width= 380, height=40)
+        title.place(x=25, y=30)
+        web_title = ctk.CTkLabel(master=self.add_popup, text='Website name: ', font=('normal', 20, 'bold'), text_color='white')
+        web_title.place(x=20, y=100)
+        web_entry = ctk.CTkEntry(master=self.add_popup, textvariable=website_name, width=230)
+        web_entry.place(x=180, y=100)
+        mail_title = ctk.CTkLabel(master=self.add_popup, text='Email ID: ', font=('normal', 20, 'bold'), text_color='white')
+        mail_title.place(x=20, y=150)
+        mail_entry = ctk.CTkEntry(master=self.add_popup, textvariable=emailid, width=230)
+        mail_entry.place(x=180, y=150)
+        password_title = ctk.CTkLabel(master=self.add_popup, text='Password: ', font=('normal', 20, 'bold'), text_color='white')
+        password_title.place(x=20, y=200)
+        passwd_entry = ctk.CTkEntry(master=self.add_popup, textvariable=passwd, width=190)
+        passwd_entry.place(x=180, y=200)
+        rand_passwd = ctk.CTkButton(master=self.add_popup, text='+', width=35, command=lambda: passwd.set(core.generate_password()), fg_color='grey', hover_color='darkgrey')
+        rand_passwd.place(x=375, y=200)
+        note_title = ctk.CTkLabel(master=self.add_popup, text='NOTE', font=('normal', 20, 'bold'), text_color='white')
+        note_title.place(x=20, y=250)
+        note_box = ctk.CTkTextbox(master=self.add_popup, width=390, height=200)
+        note_box.place(x=20, y=280)
+
+        back_button = ctk.CTkButton(master=self.add_popup, text='Back', width=190, fg_color='grey', hover_color='darkgrey', command=self.add_popup.destroy)
+        back_button.place(x=20, y=570)
+        add_button = ctk.CTkButton(master=self.add_popup, text='Add Password', width=190, fg_color='grey', hover_color='darkgrey', command=lambda :self.add_passwd(website_name, emailid, passwd, note_box))
+        add_button.place(x=220, y=570)
+
+
+
+
+
 
 
     def new_user(self, username, passwd):
