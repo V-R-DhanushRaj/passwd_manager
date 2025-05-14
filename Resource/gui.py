@@ -31,6 +31,7 @@ class GUI(ctk.CTk):
         # Variables
         self.OPTION = data["page"]
         self.USERS = data["users"]
+        self.USER = None
         self.SEARCH = ctk.StringVar(value='Search Password')
         self.PASSWORDS = ctk.IntVar(value=data["passwords"])
         self.MAIL_ID = ctk.IntVar(value=data["mail_id"])
@@ -136,13 +137,13 @@ class GUI(ctk.CTk):
         print('Search')
 
 
-    def add_passwd(self, web, id, passwd, note_textbox):
-        if web.get() == '' or id.get() == '' or passwd.get() == '':
+    def add_passwd(self, web, id, passwd, note):
+        if web == '' or id == '' or passwd == '':
             tkinter.messagebox.showerror('Empty Input', "Don't leave any input empty!")
         else:
             self.add_popup.destroy()
-            print(note_textbox.get('1.0', 'end'))
-            #core.save_passwd(self.USERNAME, web.get(), id.get(), passwd.get(), note_textbox.g)
+            print(note)
+            core.save_passwd(self.USERNAME, web, id, passwd, note)
 
 
 
@@ -179,15 +180,11 @@ class GUI(ctk.CTk):
         note_box = ctk.CTkTextbox(master=self.add_popup, width=390, height=200)
         note_box.place(x=20, y=280)
 
+
         back_button = ctk.CTkButton(master=self.add_popup, text='Back', width=190, fg_color='grey', hover_color='darkgrey', command=self.add_popup.destroy)
         back_button.place(x=20, y=570)
-        add_button = ctk.CTkButton(master=self.add_popup, text='Add Password', width=190, fg_color='grey', hover_color='darkgrey', command=lambda :self.add_passwd(website_name, emailid, passwd, note_box))
+        add_button = ctk.CTkButton(master=self.add_popup, text='Add Password', width=190, fg_color='grey', hover_color='darkgrey', command=lambda: self.add_passwd(website_name.get(), emailid.get(), passwd.get(), note_box.get(0.0, 'end')))
         add_button.place(x=220, y=570)
-
-
-
-
-
 
 
     def new_user(self, username, passwd):
@@ -203,6 +200,7 @@ class GUI(ctk.CTk):
 
         core.gen_secondary_key(username, passwd)
         core.create_file(username)
+        self.USER = username
         self.OPTION = 'dashboard'
         self.choose_tab()
 
@@ -211,6 +209,7 @@ class GUI(ctk.CTk):
         key = core.get_key(username)
         check_key = core.passwd_to_key(password).decode()
         if key == check_key:
+            self.USER = username
             self.OPTION = 'dashboard'
             self.choose_tab()
 
