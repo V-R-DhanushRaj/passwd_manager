@@ -31,11 +31,11 @@ class GUI(ctk.CTk):
         # Variables
         self.OPTION = data["page"]
         self.USERS = data["users"]
-        self.USER = None
+        self.USERNAME = None
         self.SEARCH = ctk.StringVar(value='Search Password')
-        self.PASSWORDS = ctk.IntVar(value=data["passwords"])
-        self.MAIL_ID = ctk.IntVar(value=data["mail_id"])
-        self.SITES_SECURED = ctk.IntVar(value=data["sites_secured"])
+        self.PASSWORDS = ctk.IntVar(value=0)
+        self.MAIL_ID = ctk.IntVar(value=0)
+        self.SITES_SECURED = ctk.IntVar(value=0)
         self.colour_choose()
 
         # Window Settings
@@ -79,8 +79,16 @@ class GUI(ctk.CTk):
         self.search_icon.bind('<Button-1>', self.on_search_click)
 
         # Displaying Tab
-        self.OPTION = 'dashboard'
+
         self.choose_tab()
+
+
+    def get_dashboard_data(self):
+        user = self.USERNAME
+        passwd, id, site = core.dashboard_data(user)
+        self.PASSWORDS.set(passwd)
+        self.SITES_SECURED.set(site)
+        self.MAIL_ID.set(id)
 
 
     def choose_tab(self):
@@ -93,6 +101,7 @@ class GUI(ctk.CTk):
             self.canvas.pack_forget()
 
         elif self.OPTION == 'dashboard':
+            self.get_dashboard_data()
             self.canvas.pack(expand=True, fill='both')
             self.side_bar.place(x=0, y=2)
             self.search_add.place(x=300,y=15)
@@ -200,7 +209,7 @@ class GUI(ctk.CTk):
 
         core.gen_secondary_key(username, passwd)
         core.create_file(username)
-        self.USER = username
+        self.USERNAME = username
         self.OPTION = 'dashboard'
         self.choose_tab()
 
@@ -209,7 +218,7 @@ class GUI(ctk.CTk):
         key = core.get_key(username)
         check_key = core.passwd_to_key(password).decode()
         if key == check_key:
-            self.USER = username
+            self.USERNAME = username
             self.OPTION = 'dashboard'
             self.choose_tab()
 

@@ -14,3 +14,6 @@ from gui import GUI
 
 gui = GUI()
 gui.mainloop()
+
+"""import core
+core.encrypt_data('dhan')"""
