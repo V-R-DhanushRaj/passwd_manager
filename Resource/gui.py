@@ -1,8 +1,24 @@
 import customtkinter as ctk
-import tkinter.messagebox
+import tkinter.messagebox, json
+from tkinter import ttk
 from PIL import Image
-import settings, core
-import json
+import core
+
+
+class Table(ttk.Treeview):
+    def __init__(self, master, bg, **kw):
+        super().__init__(master, bg, **kw)
+
+        self.heading('Web', text='Website')
+        self.column('Web', width=250)
+        self.heading('ID', text='Email ID')
+        self.column('ID', width=250)
+        self.heading('Passwd', text='Password')
+        self.column('Passwd', width=250)
+        self.heading('Note', text='NOTE')
+        self.column('Note', width=398)
+        self.tag_configure('bg', background=bg)
+        self.tag_configure('font', font=('Bradley Hand ITC', 12, 'normal'))
 
 
 class GUI(ctk.CTk):
@@ -115,6 +131,7 @@ class GUI(ctk.CTk):
         elif self.OPTION == 'my_password':
             self.canvas.pack(expand=True, fill='both')
             self.side_bar.place(x=0, y=2)
+            self.set_data()
             self.search_add.place(x=300, y=15)
             self.my_passwd_frame.place(x=300, y=85)
             self.dashboard_frame.place_forget()
@@ -151,8 +168,8 @@ class GUI(ctk.CTk):
             tkinter.messagebox.showerror('Empty Input', "Don't leave any input empty!")
         else:
             self.add_popup.destroy()
-            print(note)
             core.save_passwd(self.USERNAME, web, id, passwd, note)
+            self.get_dashboard_data()
 
 
 
@@ -413,6 +430,34 @@ class GUI(ctk.CTk):
         my_passwd_table_frame = ctk.CTkFrame(master=self.my_passwd_frame, width=938, height=518,
                                                   bg_color=self.BG_COLOUR, fg_color=self.HIGHLIGHT_COLOUR_1)
         my_passwd_table_frame.place(x=5, y=75)
+
+        self.table = ttk.Treeview(master=self.my_passwd_frame, height=30, columns=['Web', 'ID', 'Passwd', 'Note'], show='headings')
+        self.table.heading('Web', text='Website')
+        self.table.column('Web', width=250)
+        self.table.heading('ID', text='Email ID')
+        self.table.column('ID', width=250)
+        self.table.heading('Passwd', text='Password')
+        self.table.column('Passwd', width=250)
+        self.table.heading('Note', text='NOTE')
+        self.table.column('Note', width=398)
+        self.table.tag_configure('bg', background=self.BG_COLOUR)
+        self.table.tag_configure('font', font=('Bradley Hand ITC', 12, 'normal'))
+
+        style = ttk.Style()
+        style.theme_use('clam')
+        style.configure('Treeview.Heading', foreground=self.FONT_COLOUR_1, background=self.BG_COLOUR,font=('Arial', 25,'bold'))
+        self.table.place(x=17, y=105)
+
+
+    def set_data(self):
+        # Removing Prev Data
+        for item in self.table.get_children():
+            self.table.delete(item)
+
+        # Add new data from file
+        file_data = core.get_data(self.USERNAME)
+        for data in file_data:
+            self.table.insert(parent='', index=data[0], values=(data[1],data[2],data[3],ctk.CTkEntry), tags=('bg', 'font'))
 
 
     def colour_choose(self):

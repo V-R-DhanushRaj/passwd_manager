@@ -76,22 +76,28 @@ def decrypt_data(username):
 
 
 def save_passwd(username, website, email, passwd, note):
-    decrypt_data(username)
-    with open(f'./Data/{username}.csv', 'r', newline='') as data_file:
-        data = []
-        for i in csv.reader(data_file):
-            data.append(i)
-
+    data = get_data(username)
     try:
         prev_index = int(data[-1][0])
     except:
         prev_index = -1
 
+    decrypt_data(username)
     with open(f'./Data/{username}.csv', 'w', newline='') as data_file:
         writer = csv.writer(data_file)
         data.append([prev_index+1, website, email, passwd, note.strip()])
         writer.writerows(data)
     encrypt_data(username)
+
+
+def get_data(username):
+    decrypt_data(username)
+    with open(f'./Data/{username}.csv', 'r', newline='') as data_file:
+        data = []
+        for i in csv.reader(data_file):
+            data.append(i)
+    encrypt_data(username)
+    return data
 
 
 def dashboard_data(username):
