@@ -1,6 +1,7 @@
 import customtkinter as ctk
 import tkinter.messagebox, json
 from tkinter import ttk
+import tkinter as tk
 from PIL import Image
 import core
 
@@ -170,6 +171,7 @@ class GUI(ctk.CTk):
             self.add_popup.destroy()
             core.save_passwd(self.USERNAME, web, id, passwd, note)
             self.get_dashboard_data()
+            self.set_data()
 
 
 
@@ -427,11 +429,11 @@ class GUI(ctk.CTk):
         my_passwd_title = ctk.CTkLabel(master=self.my_passwd_frame, text='My Passwords',
                                             font=('Inter', 34, 'bold'))
         my_passwd_title.place(x=2, y=8)
-        my_passwd_table_frame = ctk.CTkFrame(master=self.my_passwd_frame, width=938, height=518,
+        my_passwd_table_frame = ctk.CTkFrame(master=self.my_passwd_frame, width=938, height=510,
                                                   bg_color=self.BG_COLOUR, fg_color=self.HIGHLIGHT_COLOUR_1)
-        my_passwd_table_frame.place(x=5, y=75)
+        my_passwd_table_frame.place(x=5, y=80)
 
-        self.table = ttk.Treeview(master=self.my_passwd_frame, height=30, columns=['Web', 'ID', 'Passwd', 'Note'], show='headings')
+        self.table = ttk.Treeview(master=self.my_passwd_frame, height=28, columns=['Web', 'ID', 'Passwd', 'Note'], show='headings')
         self.table.heading('Web', text='Website')
         self.table.column('Web', width=250)
         self.table.heading('ID', text='Email ID')
@@ -439,14 +441,21 @@ class GUI(ctk.CTk):
         self.table.heading('Passwd', text='Password')
         self.table.column('Passwd', width=250)
         self.table.heading('Note', text='NOTE')
-        self.table.column('Note', width=398)
-        self.table.tag_configure('bg', background=self.BG_COLOUR)
-        self.table.tag_configure('font', font=('Bradley Hand ITC', 12, 'normal'))
+        self.table.column('Note', width=385)
+        self.table.tag_configure('bg', background=self.HIGHLIGHT_COLOUR_1)
+        self.table.tag_configure('font', font=('Inter', 13, 'normal'))
+        self.table.place(x=17, y=112)
 
         style = ttk.Style()
         style.theme_use('clam')
-        style.configure('Treeview.Heading', foreground=self.FONT_COLOUR_1, background=self.BG_COLOUR,font=('Arial', 25,'bold'))
-        self.table.place(x=17, y=105)
+        style.configure('Treeview.Heading', foreground=self.FONT_COLOUR_1, background=self.HIGHLIGHT_COLOUR_2,font=('Arial', 25,'bold'))
+
+        sb = ctk.CTkScrollbar(master=self.my_passwd_frame, orientation='vertical', bg_color=self.HIGHLIGHT_COLOUR_2, height=490, fg_color=self.HIGHLIGHT_COLOUR_1)
+        sb.configure(command=self.table.yview)
+        self.table.configure(yscrollcommand=sb.set)
+        sb.place(x=925, y=90)
+
+
 
 
     def set_data(self):
