@@ -117,3 +117,16 @@ def dashboard_data(username):
     encrypt_data(username)
     return len(password), len(mail_id), len(site_secured)
 
+def search_passwd(search, username):
+    decrypt_data(username)
+    with open(f'./Data/{username}.csv', 'r', newline='') as data_file:
+        data = csv.reader(data_file)
+        searched_pass = []
+        for i in data:
+            if search.strip().lower() in i[1]:
+                searched_pass.append(i)
+    encrypt_data(username)
+    if searched_pass == []:
+        return None
+    else:
+        return searched_pass

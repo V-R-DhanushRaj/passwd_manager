@@ -161,8 +161,46 @@ class GUI(ctk.CTk):
 
 
     def on_search_click(self, event):
-        print('Search')
+        text = self.SEARCH.get()
+        search_data = core.search_passwd(text, self.USERNAME)
+        if search_data == None:
+            self.no_result_found(text)
+        else:
+            self.search_popup(text, search_data)
 
+    def no_result_found(self, search_text):
+        no_popup = ctk.CTkToplevel(self)
+        no_popup.geometry('430x620')
+        no_popup.title('No Result Found')
+        no_popup.iconbitmap('./Images/logo.ico')
+        no_popup.configure(fg_color=self.HIGHLIGHT_COLOUR_2)
+        no_popup.resizable(False, False)
+
+        title = ctk.CTkLabel(master=no_popup, text='Search for', font=('Inter', 30, 'normal'))
+        title_continue = ctk.CTkLabel(master=no_popup, text=f'"{search_text}"', font=('Inter', 25, 'bold'))
+        title.place(x=10, y=10)
+        title_continue.place(x=10, y=50)
+
+        result_frame = ctk.CTkFrame(master=no_popup, width=410, height=510, fg_color=self.HIGHLIGHT_COLOUR_1, corner_radius=25)
+        result_frame.place(x=215, y=353, anchor='center')
+        text = ctk.CTkLabel(master=result_frame, text='No Result Found')
+        text.place(x=205, y=255, anchor='center')
+
+    def search_popup(self, search_text, search_data):
+        no_popup = ctk.CTkToplevel(self)
+        no_popup.geometry('430x620')
+        no_popup.title('No Result Found')
+        no_popup.iconbitmap('./Images/logo.ico')
+        no_popup.configure(fg_color=self.HIGHLIGHT_COLOUR_2)
+        no_popup.resizable(False, False)
+
+        title = ctk.CTkLabel(master=no_popup, text='Search for', font=('Inter', 30, 'normal'))
+        title_continue = ctk.CTkLabel(master=no_popup, text=f'"{search_text}"', font=('Inter', 25, 'bold'))
+        title.place(x=10, y=10)
+        title_continue.place(x=10, y=50)
+        result_frame = ctk.CTkFrame(master=no_popup, width=410, height=510, fg_color=self.HIGHLIGHT_COLOUR_1,
+                                    corner_radius=25)
+        result_frame.place(x=215, y=353, anchor='center')
 
     def add_passwd(self, web, id, passwd, note):
         if web == '' or id == '' or passwd == '':
