@@ -2,6 +2,8 @@ import customtkinter as ctk
 import tkinter.messagebox, json
 from tkinter import ttk
 import tkinter as tk
+
+import pyperclip
 from PIL import Image
 import core
 
@@ -198,9 +200,23 @@ class GUI(ctk.CTk):
         title_continue = ctk.CTkLabel(master=no_popup, text=f'"{search_text}"', font=('Inter', 25, 'bold'))
         title.place(x=10, y=10)
         title_continue.place(x=10, y=50)
-        result_frame = ctk.CTkFrame(master=no_popup, width=410, height=510, fg_color=self.HIGHLIGHT_COLOUR_1,
-                                    corner_radius=25)
+        result_frame = ctk.CTkScrollableFrame(master=no_popup, width=370, height=460, fg_color=self.HIGHLIGHT_COLOUR_1,
+                                              corner_radius=25)
         result_frame.place(x=215, y=353, anchor='center')
+
+        for data in search_data:
+            data_frame = ctk.CTkFrame(master=result_frame, width=360, height=230, fg_color=self.BG_COLOUR, corner_radius=20)
+            data_frame.pack(side=ctk.BOTTOM, pady=10)
+            ctk.CTkLabel(master=data_frame, text=data[1], font=('Arial', 18, 'bold')).place(x=355, y=5, anchor='ne')
+            ctk.CTkLabel(master=data_frame, text=f'Email: {data[2]}', font=('default', 15, 'normal')).place(x=5, y=35)
+            ctk.CTkLabel(master=data_frame, text=f"Passwd: {data[3]}", font=('default', 15, 'normal')).place(x=5, y=60)
+            ctk.CTkButton(master=data_frame, text='copy', command=lambda: pyperclip.copy(data[3]), width=50).place(y=60, x=355, anchor='ne')
+            ctk.CTkLabel(master=data_frame, text='NOTE', font=('default', 15, 'normal')).place(x=5, y=100)
+            note = ctk.CTkTextbox(master=data_frame, width=350, height=100)
+            note.insert("1.0", data[4])
+            note.configure(state='disabled')
+            note.place(x=5, y=120)
+
 
     def add_passwd(self, web, id, passwd, note):
         if web == '' or id == '' or passwd == '':
@@ -504,7 +520,7 @@ class GUI(ctk.CTk):
         # Add new data from file
         file_data = core.get_data(self.USERNAME)
         for data in file_data:
-            self.table.insert(parent='', index=data[0], values=(data[1],data[2],data[3],ctk.CTkEntry), tags=('bg', 'font'))
+            self.table.insert(parent='', index=data[0], values=(data[1],data[2],data[3],data[4]), tags=('bg', 'font'))
 
 
     def colour_choose(self):
