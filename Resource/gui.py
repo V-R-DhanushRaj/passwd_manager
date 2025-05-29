@@ -9,8 +9,10 @@ import core
 
 
 class Table(ttk.Treeview):
-    def __init__(self, master, bg, **kw):
-        super().__init__(master, bg, **kw)
+    def __init__(self, master, bg, fc_1, hc_1, hc_2, root, **kw):
+        super().__init__(master, **kw)
+        self.ROOT = root
+        self.USERNAME = None
 
         self.heading('Web', text='Website')
         self.column('Web', width=250)
@@ -19,9 +21,76 @@ class Table(ttk.Treeview):
         self.heading('Passwd', text='Password')
         self.column('Passwd', width=250)
         self.heading('Note', text='NOTE')
-        self.column('Note', width=398)
+        self.column('Note', width=395)
         self.tag_configure('bg', background=bg)
-        self.tag_configure('font', font=('Bradley Hand ITC', 12, 'normal'))
+        self.tag_configure('font', font=('Inter', 13, 'normal'))
+
+        style = ttk.Style()
+        style.theme_use('clam')
+        style.configure('Treeview.Heading', foreground=fc_1, background=hc_2, font=('Arial', 25, 'bold'))
+
+        sb = ctk.CTkScrollbar(master=master, orientation='vertical', bg_color=hc_2, height=490, fg_color=hc_1)
+        sb.configure(command=self.yview)
+        self.configure(yscrollcommand=sb.set)
+        sb.place(x=923, y=8)
+
+        self.bind('<Double-1>', self.on_double_click)
+
+    def on_double_click(self, event):
+        region_clicked = self.identify_region(event.x, event.y)
+        if region_clicked == 'cell':
+            column = self.identify_column(event.x)
+            column_index = int(column[1:]) - 1
+
+            selected_iid = self.focus()
+            selected_value = self.item(selected_iid)
+            selected_text = selected_value.get('values')[column_index]
+
+            column_box = self.bbox(selected_iid, column) # (xpos, ypos, width, height)
+            entry_edit = ttk.Entry(self.ROOT, width=column_box[2])
+            entry_edit.place(x=column_box[0] + 4, y=column_box[1] + 10, w=column_box[2], h=column_box[3])
+            entry_edit.editing_column_index = column_index
+            entry_edit.editing_item_iid = selected_iid
+            entry_edit.insert(0, selected_text)
+            entry_edit.select_range(0, tk.END)
+
+            entry_edit.focus()
+            entry_edit.bind('<FocusOut>', lambda event: event.widget.destroy())
+            entry_edit.bind('<Return>', self.on_enter_press)
+
+    def on_enter_press(self, event):
+        new_text = event.widget.get()
+        selected_iid = event.widget.editing_item_iid
+        column_index = event.widget.editing_column_index
+        #print(row_index, column_index)
+
+        # Change Data
+        current_values = self.item(selected_iid).get('values')
+        current_values[column_index] = new_text
+        self.item(selected_iid, values=current_values)
+        new_data = []
+        index = 0
+        for row in self.get_children():
+            row_data = self.item(row)['values']
+            row_data.insert(0, index)
+            index += 1
+            new_data.append(row_data)
+        core.change_data(self.USERNAME, new_data)
+        self.set_data(self.USERNAME)
+        event.widget.destroy()
+
+    def set_data(self, username):
+        self.USERNAME = username
+
+        # Removing Prev Data
+        for item in self.get_children():
+            self.delete(item)
+
+        # Add new data from file
+        file_data = core.get_data(username)
+        for data in file_data:
+            self.insert(parent='', index=data[0], values=(data[1],data[2],data[3],data[4]), tags=('bg', 'font'))
+
 
 
 class GUI(ctk.CTk):
@@ -134,7 +203,7 @@ class GUI(ctk.CTk):
         elif self.OPTION == 'my_password':
             self.canvas.pack(expand=True, fill='both')
             self.side_bar.place(x=0, y=2)
-            self.set_data()
+            self.table.set_data(self.USERNAME)
             self.search_add.place(x=300, y=15)
             self.my_passwd_frame.place(x=300, y=85)
             self.dashboard_frame.place_forget()
@@ -191,7 +260,7 @@ class GUI(ctk.CTk):
     def search_popup(self, search_text, search_data):
         no_popup = ctk.CTkToplevel(self)
         no_popup.geometry('430x620')
-        no_popup.title('No Result Found')
+        no_popup.title('Search result')
         no_popup.iconbitmap('./Images/logo.ico')
         no_popup.configure(fg_color=self.HIGHLIGHT_COLOUR_2)
         no_popup.resizable(False, False)
@@ -225,7 +294,7 @@ class GUI(ctk.CTk):
             self.add_popup.destroy()
             core.save_passwd(self.USERNAME, web, id, passwd, note)
             self.get_dashboard_data()
-            self.set_data()
+            self.table.set_data(self.USERNAME)
 
 
 
@@ -411,6 +480,7 @@ class GUI(ctk.CTk):
         search_entry.place(x=15, y=2)
         self.search_icon = ctk.CTkLabel(master=search, text='', image=self.search_img)
         self.search_icon.place(x=678, y=9)
+        search_entry.bind('<FocusIn>', lambda event: search_entry.select_range(0, ctk.END))
 
         # Add Passwd
         self.add = ctk.CTkFrame(master=self.search_add, width=183, height=40, corner_radius=8,
@@ -487,40 +557,12 @@ class GUI(ctk.CTk):
                                                   bg_color=self.BG_COLOUR, fg_color=self.HIGHLIGHT_COLOUR_1)
         my_passwd_table_frame.place(x=5, y=80)
 
-        self.table = ttk.Treeview(master=self.my_passwd_frame, height=28, columns=['Web', 'ID', 'Passwd', 'Note'], show='headings')
-        self.table.heading('Web', text='Website')
-        self.table.column('Web', width=250)
-        self.table.heading('ID', text='Email ID')
-        self.table.column('ID', width=250)
-        self.table.heading('Passwd', text='Password')
-        self.table.column('Passwd', width=250)
-        self.table.heading('Note', text='NOTE')
-        self.table.column('Note', width=385)
-        self.table.tag_configure('bg', background=self.HIGHLIGHT_COLOUR_1)
-        self.table.tag_configure('font', font=('Inter', 13, 'normal'))
-        self.table.place(x=17, y=112)
-
-        style = ttk.Style()
-        style.theme_use('clam')
-        style.configure('Treeview.Heading', foreground=self.FONT_COLOUR_1, background=self.HIGHLIGHT_COLOUR_2,font=('Arial', 25,'bold'))
-
-        sb = ctk.CTkScrollbar(master=self.my_passwd_frame, orientation='vertical', bg_color=self.HIGHLIGHT_COLOUR_2, height=490, fg_color=self.HIGHLIGHT_COLOUR_1)
-        sb.configure(command=self.table.yview)
-        self.table.configure(yscrollcommand=sb.set)
-        sb.place(x=925, y=90)
+        self.table = Table(master=my_passwd_table_frame, height=28, columns=['Web', 'ID', 'Passwd', 'Note'], show='headings', bg=self.BG_COLOUR, hc_1=self.HIGHLIGHT_COLOUR_1, hc_2=self.HIGHLIGHT_COLOUR_2, fc_1=self.FONT_COLOUR_1, root=my_passwd_table_frame)
+        self.table.place(x=4, y=10)
 
 
 
 
-    def set_data(self):
-        # Removing Prev Data
-        for item in self.table.get_children():
-            self.table.delete(item)
-
-        # Add new data from file
-        file_data = core.get_data(self.USERNAME)
-        for data in file_data:
-            self.table.insert(parent='', index=data[0], values=(data[1],data[2],data[3],data[4]), tags=('bg', 'font'))
 
 
     def colour_choose(self):

@@ -123,10 +123,17 @@ def search_passwd(search, username):
         data = csv.reader(data_file)
         searched_pass = []
         for i in data:
-            if search.strip().lower() in i[1]:
+            if search.strip().lower() in i[1].lower():
                 searched_pass.append(i)
     encrypt_data(username)
     if searched_pass == []:
         return None
     else:
         return searched_pass
+
+def change_data(username, new_data):
+    decrypt_data(username)
+    with open(f'./Data/{username}.csv', 'w', newline='') as data_file:
+        writter = csv.writer(data_file)
+        writter.writerows(new_data)
+    encrypt_data(username)
