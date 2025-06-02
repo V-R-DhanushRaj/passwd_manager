@@ -137,3 +137,14 @@ def change_data(username, new_data):
         writter = csv.writer(data_file)
         writter.writerows(new_data)
     encrypt_data(username)
+
+def data_exist(username, website, email):
+    de = False
+    decrypt_data(username)
+    with open(f'./Data/{username}.csv', 'r', newline='') as data_file:
+        datas = csv.reader(data_file)
+        for data in datas:
+            if data[1].lower() == website.lower() and data[2].lower() == email.lower():
+                de = True
+    encrypt_data(username)
+    return de

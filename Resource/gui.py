@@ -35,6 +35,7 @@ class Table(ttk.Treeview):
         sb.place(x=923, y=8)
 
         self.bind('<Double-1>', self.on_double_click)
+        self.bind('<Delete>', self.delete_data)
 
     def on_double_click(self, event):
         region_clicked = self.identify_region(event.x, event.y)
@@ -62,12 +63,16 @@ class Table(ttk.Treeview):
         new_text = event.widget.get()
         selected_iid = event.widget.editing_item_iid
         column_index = event.widget.editing_column_index
-        #print(row_index, column_index)
 
         # Change Data
         current_values = self.item(selected_iid).get('values')
         current_values[column_index] = new_text
         self.item(selected_iid, values=current_values)
+
+        self.change_data()
+        event.widget.destroy()
+
+    def change_data(self):
         new_data = []
         index = 0
         for row in self.get_children():
@@ -77,7 +82,7 @@ class Table(ttk.Treeview):
             new_data.append(row_data)
         core.change_data(self.USERNAME, new_data)
         self.set_data(self.USERNAME)
-        event.widget.destroy()
+
 
     def set_data(self, username):
         self.USERNAME = username
@@ -90,6 +95,19 @@ class Table(ttk.Treeview):
         file_data = core.get_data(username)
         for data in file_data:
             self.insert(parent='', index=data[0], values=(data[1],data[2],data[3],data[4]), tags=('bg', 'font'))
+
+    def delete_data(self, event = None):
+        for i in self.selection():
+            self.delete(i)
+
+        self.change_data()
+
+    def copy_passwd(self):
+        if len(self.selection()) == 1:
+            for i in self.selection():
+                passwd = self.item(i)['values'][2]
+                pyperclip.copy(passwd)
+
 
 
 
@@ -115,6 +133,10 @@ class GUI(ctk.CTk):
                                           dark_image=Image.open('./Images/add_light.png'), size=(25, 25))
         self.welcome_img = ctk.CTkImage(light_image=Image.open('./Images/sign_up.png'),
                                           dark_image=Image.open('./Images/sign_up.png'), size=(620, 680))
+        self.delete_img = ctk.CTkImage(light_image=Image.open('./Images/trash_light.png'),
+                                       dark_image=Image.open('./Images/trash_dark.png'), size=(20, 20))
+        self.copy_img = ctk.CTkImage(light_image=Image.open('./Images/copy_light.png'),
+                                     dark_image=Image.open('./Images/copy_light.png'), size=(20, 20))
 
         # Variables
         self.OPTION = data["page"]
@@ -290,6 +312,8 @@ class GUI(ctk.CTk):
     def add_passwd(self, web, id, passwd, note):
         if web == '' or id == '' or passwd == '':
             tkinter.messagebox.showerror('Empty Input', "Don't leave any input empty!")
+        elif core.data_exist(self.USERNAME, web, id):
+            tkinter.messagebox.showerror('Password Exist', "Password Exist! Please Edit by Double clicking in 'My Password' Page.")
         else:
             self.add_popup.destroy()
             core.save_passwd(self.USERNAME, web, id, passwd, note)
@@ -560,6 +584,11 @@ class GUI(ctk.CTk):
         self.table = Table(master=my_passwd_table_frame, height=28, columns=['Web', 'ID', 'Passwd', 'Note'], show='headings', bg=self.BG_COLOUR, hc_1=self.HIGHLIGHT_COLOUR_1, hc_2=self.HIGHLIGHT_COLOUR_2, fc_1=self.FONT_COLOUR_1, root=my_passwd_table_frame)
         self.table.place(x=4, y=10)
 
+        delete_button = ctk.CTkButton(master=self.my_passwd_frame, width=20, height=20, fg_color=self.HIGHLIGHT_COLOUR_1, image=self.delete_img, text='', hover_color=self.HIGHLIGHT_COLOUR_2, command=self.table.delete_data)
+        delete_button.place(x=900, y=50)
+
+        copy_button = ctk.CTkButton(master=self.my_passwd_frame, width=60, height=20, fg_color=self.HIGHLIGHT_COLOUR_1, hover_color=self.HIGHLIGHT_COLOUR_2, text='Copy', image=self.copy_img, command=self.table.copy_passwd, text_color=self.FONT_COLOUR_1)
+        copy_button.place(x=820, y=50)
 
 
 
