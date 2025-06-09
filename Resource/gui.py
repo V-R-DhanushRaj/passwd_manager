@@ -113,12 +113,8 @@ class Table(ttk.Treeview):
 
 class GUI(ctk.CTk):
     def __init__(self):
-        with open('./Resource/setting.json') as settings_file:
-            data = json.load(settings_file)
-
         super().__init__()
-        self.APP_MODE = data["appearance_mode"]
-        ctk.set_appearance_mode(self.APP_MODE)
+
 
         # Images
         self.dashboard_img = ctk.CTkImage(light_image=Image.open("./Images/dashboard_light.png"),
@@ -139,13 +135,8 @@ class GUI(ctk.CTk):
                                      dark_image=Image.open('./Images/copy_light.png'), size=(20, 20))
 
         # Variables
-        self.OPTION = data["page"]
-        self.USERS = data["users"]
-        self.USERNAME = None
-        self.SEARCH = ctk.StringVar(value='Search Password')
-        self.PASSWORDS = ctk.IntVar(value=0)
-        self.MAIL_ID = ctk.IntVar(value=0)
-        self.SITES_SECURED = ctk.IntVar(value=0)
+        self.set_var()
+        self.set_theme()
         self.colour_choose()
 
         # Window Settings
@@ -205,10 +196,18 @@ class GUI(ctk.CTk):
         if self.OPTION == 'sign_up':
             self.canvas.pack_forget()
             self.sign_up.place(x=20, y=20)
+            self.dashboard_frame.place_forget()
+            self.my_passwd_frame.place_forget()
+            self.side_bar.place_forget()
+            self.search_add.place_forget()
 
         elif self.OPTION == 'log_in':
             self.log_in.place(x=0,y=0)
             self.canvas.pack_forget()
+            self.dashboard_frame.place_forget()
+            self.my_passwd_frame.place_forget()
+            self.side_bar.place_forget()
+            self.search_add.place_forget()
 
         elif self.OPTION == 'dashboard':
             self.get_dashboard_data()
@@ -246,7 +245,7 @@ class GUI(ctk.CTk):
 
 
     def on_settings_click(self, event):
-        print('Settings')
+        self.settings_popup()
 
 
     def on_add_click(self, event):
@@ -367,13 +366,17 @@ class GUI(ctk.CTk):
         file = open('./Resource/setting.json', 'r')
         data = json.load(file)
         file.close()
-        data["page"] = "log_in"
-        data["users"] = [username]
+        if data["users"] == []:
+            data["page"] = "log_in"
+            data["users"] = [username]
+            core.gen_secondary_key(username, passwd)
+        else:
+            data["users"].append(username)
+            core.gen_secondary_key(username, passwd, another_user=True)
         file = open('./Resource/setting.json', 'w')
         json.dump(data, file)
         file.close()
 
-        core.gen_secondary_key(username, passwd)
         core.create_file(username)
         self.USERNAME = username
         self.OPTION = 'dashboard'
@@ -392,6 +395,50 @@ class GUI(ctk.CTk):
             self.log_in.place_forget()
             self.log_in.place(x=0, y=0)
             error_window = tkinter.messagebox.showinfo('Error', "Incorrect Password")
+
+
+    def settings_popup(self):
+        self.setting_popup = ctk.CTkToplevel(self)
+        self.setting_popup.geometry('860x620')
+        self.setting_popup.title('Settings')
+        self.setting_popup.iconbitmap('./Images/logo.ico')
+        self.setting_popup.configure(fg_color=self.BG_COLOUR)
+        self.setting_popup.resizable(False, False)
+
+        ctk.CTkLabel(master=self.setting_popup, text='Basic Settings    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',
+                     font=('Arial', 28, 'normal'), text_color=self.FONT_COLOUR_1).place(x=20, y=20)
+        ctk.CTkLabel(master=self.setting_popup, text='Theme :', font=('Inter', 25, 'normal')).place(x=40, y=60)
+        t_var = ctk.StringVar(value=str(core.get_theme))
+        op = ctk.CTkComboBox(master=self.setting_popup, variable=t_var, values=['light', 'dark'], command=lambda _:self.setting_theme(op.get()))
+        op.place(x=100, y=60)
+
+        user_set = ctk.CTkLabel(master=self.setting_popup, text='User Settings     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',
+                                font=('Arial', 28, 'normal'), text_color=self.FONT_COLOUR_1)
+        user_set.place(x=20, y=310)
+        log_out_button = ctk.CTkButton(master=self.setting_popup, text='Log Out', command=self.log_out)
+        log_out_button.place(x=40, y=350)
+        new_user_button = ctk.CTkButton(master=self.setting_popup, text='Add New User', command=self.add_new_user)
+        new_user_button.place(x=40, y=450)
+
+
+    def log_out(self):
+        self.setting_popup.destroy()
+        self.OPTION = 'log_in'
+        self.USERNAME = None
+        self.choose_tab()
+
+
+    def add_new_user(self):
+        self.setting_popup.destroy()
+        self.OPTION = 'sign_up'
+        self.USERNAME = None
+        self.choose_tab()
+
+
+    def setting_theme(self, theme):
+        core.change_theme_to(theme)
+        self.set_theme()
+        self.colour_choose()
 
 
     def create_sign_up(self):
@@ -609,3 +656,19 @@ class GUI(ctk.CTk):
             self.BUTTON_COLOUR_1 = '000000'
             self.FONT_COLOUR_1 = '000000'
             self.FONT_COLOUR_2 = 'ffffff'
+
+    def set_theme(self):
+        self.APP_MODE = core.get_theme()
+        ctk.set_appearance_mode(self.APP_MODE)
+
+    def set_var(self):
+        with open('./Resource/setting.json') as settings_file:
+            data = json.load(settings_file)
+
+        self.OPTION = data["page"]
+        self.USERS = data["users"]
+        self.USERNAME = None
+        self.SEARCH = ctk.StringVar(value='Search Password')
+        self.PASSWORDS = ctk.IntVar(value=0)
+        self.MAIL_ID = ctk.IntVar(value=0)
+        self.SITES_SECURED = ctk.IntVar(value=0)

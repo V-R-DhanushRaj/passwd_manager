@@ -1,5 +1,5 @@
 from random import choice, randint
-import string, pyperclip, os, base64, csv
+import string, pyperclip, os, base64, csv, json
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives import hashes
@@ -148,3 +148,15 @@ def data_exist(username, website, email):
                 de = True
     encrypt_data(username)
     return de
+
+def change_theme_to(theme):
+    with open('./Resource/setting.json','r') as settings_file:
+        data = json.load(settings_file)
+    data["appearance_mode"] = theme
+    with open('./Resource/setting.json', 'w') as settings_file:
+        json.dump(data, settings_file)
+
+def get_theme():
+    with open('./Resource/setting.json') as settings_file:
+        data = json.load(settings_file)
+    return data["appearance_mode"]
