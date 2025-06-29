@@ -7,23 +7,29 @@ import pyperclip
 from PIL import Image
 import core
 
-
 class Table(ttk.Treeview):
     def __init__(self, master, bg, fc_1, hc_1, hc_2, root, **kw):
         super().__init__(master, **kw)
+        self.configure(columns=('Web', 'ID', 'Passwd', 'Note'), show='headings')
         self.ROOT = root
         self.USERNAME = None
 
-        self.heading('Web', text='Website')
-        self.column('Web', width=250)
+        self.bg = bg
+        self.fc_1 = fc_1
+
+        try:
+            self.heading('Web', text='Website')
+            self.column('Web', width=250)
+        except:
+            print('Error Here')
         self.heading('ID', text='Email ID')
         self.column('ID', width=250)
         self.heading('Passwd', text='Password')
         self.column('Passwd', width=250)
         self.heading('Note', text='NOTE')
         self.column('Note', width=395)
-        self.tag_configure('bg', background=bg)
-        self.tag_configure('font', font=('Inter', 13, 'normal'))
+
+        self.add_tags()
 
         style = ttk.Style()
         style.theme_use('clam')
@@ -36,6 +42,11 @@ class Table(ttk.Treeview):
 
         self.bind('<Double-1>', self.on_double_click)
         self.bind('<Delete>', self.delete_data)
+
+    def add_tags(self):
+        self.tag_configure('bg', background=self.bg[0] if ctk.get_appearance_mode() == 'Light' else self.bg[1])
+        self.tag_configure('font', font=('Inter', 13, 'normal'),
+                           foreground=self.fc_1[0] if ctk.get_appearance_mode() == 'Light' else self.fc_1[1])
 
     def on_double_click(self, event):
         region_clicked = self.identify_region(event.x, event.y)
@@ -114,41 +125,42 @@ class Table(ttk.Treeview):
 class GUI(ctk.CTk):
     def __init__(self):
         super().__init__()
+        self.set_var()
 
 
         # Images
         self.dashboard_img = ctk.CTkImage(light_image=Image.open("./Images/dashboard_light.png"),
-                                          dark_image=Image.open('./Images/dashboard_light.png'), size=(30, 30))
+                                          dark_image=Image.open('./Images/dashboard_dark.png'), size=(30, 30))
         self.my_passwd_img = ctk.CTkImage(light_image=Image.open('./Images/analytics_light.png'),
-                                          dark_image=Image.open('./Images/analytics_light.png'), size=(30, 30))
+                                          dark_image=Image.open('./Images/analytics_dark.png'), size=(30, 30))
         self.settings_img = ctk.CTkImage(light_image=Image.open('./Images/settings_light.png'),
-                                          dark_image=Image.open('./Images/settings_light.png'), size=(30, 30))
-        self.search_img = ctk.CTkImage(light_image=Image.open('./Images/search.png'),
-                                          dark_image=Image.open('./Images/search.png'), size=(30, 30))
+                                          dark_image=Image.open('./Images/settings_dark.png'), size=(30, 30))
+        self.search_img = ctk.CTkImage(light_image=Image.open('./Images/search_light.png'),
+                                          dark_image=Image.open('./Images/search_dark.png'), size=(30, 30))
         self.add_img = ctk.CTkImage(light_image=Image.open('./Images/add_light.png'),
-                                          dark_image=Image.open('./Images/add_light.png'), size=(25, 25))
+                                          dark_image=Image.open('./Images/add_dark.png'), size=(25, 25))
         self.welcome_img = ctk.CTkImage(light_image=Image.open('./Images/sign_up.png'),
                                           dark_image=Image.open('./Images/sign_up.png'), size=(620, 680))
         self.delete_img = ctk.CTkImage(light_image=Image.open('./Images/trash_light.png'),
                                        dark_image=Image.open('./Images/trash_dark.png'), size=(20, 20))
         self.copy_img = ctk.CTkImage(light_image=Image.open('./Images/copy_light.png'),
-                                     dark_image=Image.open('./Images/copy_light.png'), size=(20, 20))
+                                     dark_image=Image.open('./Images/copy_dark.png'), size=(20, 20))
 
-        # Variables
-        self.set_var()
-        self.set_theme()
-        self.colour_choose()
+        # Colour Choosing
+        # (light_mode_color, dark_mode_color)
+        self.BG_COLOUR = ('#ffffff', '#1e1f22')
+        self.HIGHLIGHT_COLOUR_1 = ('#eeeeef', '#2b2d30')
+        self.HIGHLIGHT_COLOUR_2 = ('#cecece', '#26282e')
+        self.BUTTON_COLOUR_1 = ('#000000', "#ffffff")
+        self.FONT_COLOUR_1 = ('#000000', "#ffffff")
+        self.FONT_COLOUR_2 = ('#ffffff', '#000000')
 
         # Window Settings
         self.title('Passwd Manager')
         self.geometry('1280x720')
-        self.config(bg=self.BG_COLOUR)
+        self.config(bg='#ffffff')
         self.iconbitmap('./Images/logo.ico')
         self.resizable(False, False)
-
-        # Drawing line
-        self.canvas = ctk.CTkCanvas(master=self, width=1280, height=720, bg=self.BG_COLOUR)
-        self.canvas.create_line(335, 0, 335, 900, fill=self.HIGHLIGHT_COLOUR_1, width=3)
 
         # Interface Design
         if self.OPTION == 'sign_up':
@@ -159,6 +171,8 @@ class GUI(ctk.CTk):
         self.create_search_add()
         self.create_dashboard()
         self.create_my_password()
+
+        self.set_theme()
 
         # Events
         self.dashboard.bind('<Button-1>', self.on_dashboard_click)
@@ -438,7 +452,6 @@ class GUI(ctk.CTk):
     def setting_theme(self, theme):
         core.change_theme_to(theme)
         self.set_theme()
-        self.colour_choose()
 
 
     def create_sign_up(self):
@@ -499,8 +512,8 @@ class GUI(ctk.CTk):
 
     def create_sidebar(self):
         # Drawing line
-        self.canvas = ctk.CTkCanvas(master=self, width=1280, height=720, bg=self.BG_COLOUR)
-        self.canvas.create_line(335, 0, 335, 900, fill=self.HIGHLIGHT_COLOUR_1, width=3)
+        self.canvas = ctk.CTkCanvas(master=self, width=1280, height=720, bg='#ffffff')
+        self.canvas.create_line(335, 0, 335, 900, fill='#eeeeef', width=3)
         self.canvas.pack(expand=True, fill='both')
 
         self.side_bar = ctk.CTkFrame(master=self, bg_color=self.BG_COLOUR, fg_color=self.BG_COLOUR,
@@ -547,7 +560,7 @@ class GUI(ctk.CTk):
                                    bg_color=self.BG_COLOUR, fg_color=self.HIGHLIGHT_COLOUR_1)
         search.place(x=2, y=2)
         search_entry = ctk.CTkEntry(master=search, textvariable=self.SEARCH, height=48, width=660,
-                                         border_width=0, fg_color=self.HIGHLIGHT_COLOUR_1)
+                                         border_width=0, fg_color=self.HIGHLIGHT_COLOUR_1, text_color=self.FONT_COLOUR_1)
         search_entry.place(x=15, y=2)
         self.search_icon = ctk.CTkLabel(master=search, text='', image=self.search_img)
         self.search_icon.place(x=678, y=9)
@@ -628,7 +641,7 @@ class GUI(ctk.CTk):
                                                   bg_color=self.BG_COLOUR, fg_color=self.HIGHLIGHT_COLOUR_1)
         my_passwd_table_frame.place(x=5, y=80)
 
-        self.table = Table(master=my_passwd_table_frame, height=28, columns=['Web', 'ID', 'Passwd', 'Note'], show='headings', bg=self.BG_COLOUR, hc_1=self.HIGHLIGHT_COLOUR_1, hc_2=self.HIGHLIGHT_COLOUR_2, fc_1=self.FONT_COLOUR_1, root=my_passwd_table_frame)
+        self.table = Table(master=my_passwd_table_frame, bg=self.BG_COLOUR, hc_1=self.HIGHLIGHT_COLOUR_1, hc_2=self.HIGHLIGHT_COLOUR_2, fc_1=self.FONT_COLOUR_1, root=my_passwd_table_frame, height=28, columns=['Web', 'ID', 'Passwd', 'Note'], show='headings')
         self.table.place(x=4, y=10)
 
         delete_button = ctk.CTkButton(master=self.my_passwd_frame, width=20, height=20, fg_color=self.HIGHLIGHT_COLOUR_1, image=self.delete_img, text='', hover_color=self.HIGHLIGHT_COLOUR_2, command=self.table.delete_data)
@@ -637,29 +650,17 @@ class GUI(ctk.CTk):
         copy_button = ctk.CTkButton(master=self.my_passwd_frame, width=60, height=20, fg_color=self.HIGHLIGHT_COLOUR_1, hover_color=self.HIGHLIGHT_COLOUR_2, text='Copy', image=self.copy_img, command=self.table.copy_passwd, text_color=self.FONT_COLOUR_1)
         copy_button.place(x=820, y=50)
 
-
-
-
-
-    def colour_choose(self):
-        if self.APP_MODE == 'light':
-            self.BG_COLOUR = '#ffffff'
-            self.HIGHLIGHT_COLOUR_1 = '#eeeeef'
-            self.HIGHLIGHT_COLOUR_2 = '#cecece'
-            self.BUTTON_COLOUR_1 = '#000000'
-            self.FONT_COLOUR_1 = '#000000'
-            self.FONT_COLOUR_2 = '#ffffff'
-        elif self.APP_MODE == 'dark':
-            self.BG_COLOUR = 'ffffff'  # TODO: change later for all
-            self.HIGHLIGHT_COLOUR_1 = 'eeeeef'
-            self.HIGHLIGHT_COLOUR_2 = 'cecece'
-            self.BUTTON_COLOUR_1 = '000000'
-            self.FONT_COLOUR_1 = '000000'
-            self.FONT_COLOUR_2 = 'ffffff'
-
     def set_theme(self):
         self.APP_MODE = core.get_theme()
         ctk.set_appearance_mode(self.APP_MODE)
+
+        if self.APP_MODE == 'light':
+            self.configure(bg='#ffffff')
+            self.canvas.configure(bg='#ffffff')
+        else:
+            self.configure(bg='#1e1f22')
+            self.canvas.configure(bg='#1e1f22')
+        self.table.add_tags()
 
     def set_var(self):
         with open('./Resource/setting.json') as settings_file:
@@ -672,3 +673,4 @@ class GUI(ctk.CTk):
         self.PASSWORDS = ctk.IntVar(value=0)
         self.MAIL_ID = ctk.IntVar(value=0)
         self.SITES_SECURED = ctk.IntVar(value=0)
+

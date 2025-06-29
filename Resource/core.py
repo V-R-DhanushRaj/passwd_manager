@@ -159,5 +159,4 @@ def change_theme_to(theme):
 def get_theme():
     with open('./Resource/setting.json') as settings_file:
         data = json.load(settings_file)
-    print(data["appearance_mode"])
     return data["appearance_mode"]
