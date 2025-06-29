@@ -408,17 +408,17 @@ class GUI(ctk.CTk):
         ctk.CTkLabel(master=self.setting_popup, text='Basic Settings    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',
                      font=('Arial', 28, 'normal'), text_color=self.FONT_COLOUR_1).place(x=20, y=20)
         ctk.CTkLabel(master=self.setting_popup, text='Theme :', font=('Inter', 25, 'normal')).place(x=40, y=60)
-        t_var = ctk.StringVar(value=str(core.get_theme))
+        t_var = ctk.StringVar(value=str(core.get_theme()))
         op = ctk.CTkComboBox(master=self.setting_popup, variable=t_var, values=['light', 'dark'], command=lambda _:self.setting_theme(op.get()))
-        op.place(x=100, y=60)
+        op.place(x=150, y=63)
 
         user_set = ctk.CTkLabel(master=self.setting_popup, text='User Settings     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',
                                 font=('Arial', 28, 'normal'), text_color=self.FONT_COLOUR_1)
-        user_set.place(x=20, y=310)
-        log_out_button = ctk.CTkButton(master=self.setting_popup, text='Log Out', command=self.log_out)
-        log_out_button.place(x=40, y=350)
-        new_user_button = ctk.CTkButton(master=self.setting_popup, text='Add New User', command=self.add_new_user)
-        new_user_button.place(x=40, y=450)
+        user_set.place(x=20, y=200)
+        log_out_button = ctk.CTkButton(master=self.setting_popup, text='Log Out', command=self.log_out, width=260, fg_color='lightgrey', text_color='black', font=('Inter', 18, 'normal'), hover_color='grey')
+        log_out_button.place(x=40, y=250)
+        new_user_button = ctk.CTkButton(master=self.setting_popup, text='Add New User', command=self.add_new_user, width=260, fg_color='lightgrey', text_color='black', font=('Inter', 18, 'normal'), hover_color='grey')
+        new_user_button.place(x=40, y=300)
 
 
     def log_out(self):
